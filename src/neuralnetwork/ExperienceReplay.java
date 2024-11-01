@@ -36,11 +36,8 @@ public class ExperienceReplay {
         int index = random.nextInt(replayBuffer.size());
         return replayBuffer.get(index);
     }
-
-    //create the 'experience' objects from the agents initial movements and store them
-    public void createExperiences(List<Experience> experiences) {
-        for (Experience experience : experiences){
-            addExperience(experience);
-        }
+    
+    public int getBufferSize(){
+        return bufferSize;
     }
 }

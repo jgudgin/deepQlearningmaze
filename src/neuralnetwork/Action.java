@@ -63,5 +63,9 @@ public class Action {
                 throw new IllegalArgumentException("Unknown action: " + this.name);
         }
     }
+    
+    public static Action[] values(){
+        return new Action[]{NORTH, SOUTH, EAST, WEST};
+    }
 
 }
