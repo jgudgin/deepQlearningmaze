@@ -12,8 +12,7 @@ public class Agent {
     private double[] qValues;
     private MazeApp mazeApp;
     private QLearningNetwork qLearningNetwork;
-    
-    
+
     private int batchSize = 32;
     int inputSize = 1024;
     int outputSize = 4;
@@ -21,6 +20,8 @@ public class Agent {
     double learningRate = 0.1;
     double discountFactor = 0.9;
     double epsilon = 1.0;
+    double minEpsilon = 0.1;
+    double decayRate = 0.995;
     double tau = 0.5;
 
     public Agent(State initialState, MazeApp mazeApp) {
@@ -40,8 +41,11 @@ public class Agent {
     public void move(List<Action> actions) {
         //use epsilon soft policy to select an action
         Action action = epsilonSoft.selectAction(qValues, actions);
+        
+        //calculate the reward for the selected action
         double reward = calculateReward(action);
 
+        
         State nextState = currentState.getNextState(action);
 
         if (nextState != null) {
@@ -59,12 +63,18 @@ public class Agent {
 
             //train the neural network with a batch of experiences
             trainWithBatch();
+            
+            //decay epsilon after each action
+            if (this.epsilonSoft.getEpsilon() > minEpsilon){
+                this.epsilonSoft.setEpsilon(this.epsilonSoft.getEpsilon() * decayRate);
+            }
         }
     }
 
     private void trainWithBatch() {
         //check if there are enough experiences in the replay buffer
         if (experienceReplay.getBufferSize() < batchSize) {
+            System.out.println("Not enough experiences to train from");
             return; //not enough experiences to train
         }
 
@@ -75,10 +85,14 @@ public class Agent {
                 batch.add(experience);
             }
         }
+        System.out.println("training with current batch size: " + batch.size());
 
         //train the q learning network with the sampled batch of experiences
+        int i = 1;
         for (Experience experience : batch) {
+            System.out.println("training experience number: " + i + " from the batch");
             qLearningNetwork.train(experience);
+            i++;
         }
     }
 

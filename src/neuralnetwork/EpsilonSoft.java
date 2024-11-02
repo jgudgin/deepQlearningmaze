@@ -71,5 +71,13 @@ public class EpsilonSoft {
         //if no action is selected (which should not happen) return the last action as a default
         return actions.get(actions.size() - 1);
     }
+    
+    public void setEpsilon(double epsilon){
+        this.epsilon = epsilon;
+    }
+    
+    public double getEpsilon(){
+        return epsilon;
+    }
 
 }

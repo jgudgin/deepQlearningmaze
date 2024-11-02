@@ -16,14 +16,19 @@ public class Hidden extends Layer {
         //calculate the output for each neuron in the hidden layer
         for (int j = 0; j < outputs.length; j++) {
             outputs[j] = biases[j]; //start with the bias of the current neuron
+            System.out.println("current output of current neuron = " + biases[j]);
             
             //add the product of each input and its weight for the current neuron
             for (int i = 0; i < inputs.length; i++) {
+//                System.out.print("current output = " + inputs[i] + " * " + weights[i][j]);
                 outputs[j] += inputs[i] * weights[i][j];
+//                System.out.print(" = " + outputs[j] + "\n");
             }
             
             //apply ReLU activation function: max(0, output[j]) to introduce non-linearity
+//            System.out.println("applying ReLU activation function");
             outputs[j] = Math.max(0, outputs[j]);
+            System.out.println("output for current neuron after ReLU = " + outputs[j] + "\n");
         }
         
         //returns the transformed and activated outputs of the next layer
@@ -49,4 +54,5 @@ public class Hidden extends Layer {
 
         return nextGradients;
     }
+   
 }
