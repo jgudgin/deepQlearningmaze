@@ -55,8 +55,7 @@ public class QLearningNetwork {
     public void train(Experience experience) {
 
         //predict the current Q-values for current state-action pair
-        //Qt-1(s,a)
-        
+        //Qt-1(s,a) 
         //current predicted Q-values for calculating updated ones
         double[] qValuesCurrent = predict(experience);
         

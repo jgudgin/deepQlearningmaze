@@ -2,6 +2,7 @@ package neuralnetwork;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 //state object holding information about the agents current co-ordinates and surroundings
 //includes method for getting the next state after an action
@@ -113,6 +114,24 @@ public class State {
         }
 
         return count;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        State state = (State) obj;
+        return x == state.x && y == state.y && surroundings.equals(state.surroundings);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, surroundings);
     }
 
     @Override

@@ -145,7 +145,7 @@ public class MazeApp {
 
     public void startGameLoop() {
         agent.getCurrentState().updateSurroundings(maze, agent.getCurrentState().getX(), agent.getCurrentState().getY());
-        System.out.println(agent.getCurrentState().toString());
+//        System.out.println(agent.getCurrentState().toString());
 
         //check if the agent has reached the end position
         int[] currentPosition = {agent.getCurrentState().getX(), agent.getCurrentState().getY()};

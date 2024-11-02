@@ -13,7 +13,7 @@ public class Agent {
     private MazeApp mazeApp;
     private QLearningNetwork qLearningNetwork;
 
-    private int batchSize = 32;
+    private int batchSize = 50;
     int inputSize = 1024;
     int outputSize = 4;
     int[] hiddenSizes = {10, 5};
@@ -22,7 +22,7 @@ public class Agent {
     double epsilon = 1.0;
     double minEpsilon = 0.1;
     double decayRate = 0.999;
-    double tau = 0.5;
+    double tau = 0.3;
 
     public Agent(State initialState, MazeApp mazeApp) {
         this.currentState = initialState;
@@ -55,7 +55,7 @@ public class Agent {
 
             // Calculate the reward based on the move
             double reward = calculateReward(action);
-            System.out.println("Reward for moving " + action.toString() + " = " + reward);
+//            System.out.println("Reward for moving " + action.toString() + " = " + reward);
 
             // Create a new experience
             Experience experience = new Experience(currentState, action, reward, nextState);
@@ -73,12 +73,10 @@ public class Agent {
             }
         } else {
 
-            System.out.println("Invalid move");
-            
+//            System.out.println("Invalid move");
             double reward = -1;    //-1 point for hitting a wall
 
-            System.out.println("Reward for moving " + action.toString() + " = " + reward);
-
+//            System.out.println("Reward for moving " + action.toString() + " = " + reward);
             // Create a new experience
             Experience experience = new Experience(currentState, action, reward, nextState);
             experienceReplay.addExperience(experience);
@@ -93,8 +91,10 @@ public class Agent {
             if (this.epsilonSoft.getEpsilon() > minEpsilon) {
                 this.epsilonSoft.setEpsilon(this.epsilonSoft.getEpsilon() * decayRate);
             }
-        }
 
+        }
+//        System.out.println("Current Epsilon: " + this.epsilonSoft.getEpsilon());
+        System.out.println("total reward: " + totalReward);
     }
 
     private void trainWithBatch() {
@@ -127,35 +127,27 @@ public class Agent {
         int currentX = currentState.getX();
         int currentY = currentState.getY();
 
-        // Calculate the Manhattan distance to the goal from the current state
+        // Calculate current Manhattan distance
         int currentDistance = Math.abs(currentX - goalPos[0]) + Math.abs(currentY - goalPos[1]);
 
-        // Move to the next state based on the action taken
+        // Get next state based on action
         State nextState = currentState.getNextState(action);
         if (nextState != null) {
             int nextX = nextState.getX();
             int nextY = nextState.getY();
-
-            // Calculate the Manhattan distance to the goal from the next state
             int nextDistance = Math.abs(nextX - goalPos[0]) + Math.abs(nextY - goalPos[1]);
 
-            // Assign reward based on the change in distance
-            // If the next state is closer to the goal, reward positively
-            // If it's further away, penalize negatively
-            if (nextDistance < currentDistance) {
-                return 1.0; // Reward for moving closer
-            } else if (nextDistance > currentDistance) {
-                return -1.0; // Penalty for moving away
-            }
+            // Reward for moving closer and penalty for moving away
+            double reward = (currentDistance - nextDistance) * 5; // Scale as needed
+            return reward; // Return calculated reward
         }
 
-        // Assign positive reward if the goal coordinates are reached
+        // High reward for reaching the goal
         if (currentX == goalPos[0] && currentY == goalPos[1]) {
-            return 100; // High reward for reaching the goal
+            return 50; // Moderate reward
         }
 
-        // Zero points for normal movement if no conditions met
-        return -0.1;
+        // Small penalty for each action taken
+        return -0.01; // Small penalty for normal movement
     }
-
 }

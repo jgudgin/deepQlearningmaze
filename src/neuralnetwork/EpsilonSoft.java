@@ -56,9 +56,9 @@ public class EpsilonSoft {
         double randomValue = Math.random();
         double cumulativeProb = 0.0;
         
-        System.out.println("Random value: " + randomValue);
-        System.out.println("probs length: " + probs.length);
-        System.out.println("actions length: " + actions.size());
+//        System.out.println("Random value: " + randomValue);
+//        System.out.println("probs length: " + probs.length);
+//        System.out.println("actions length: " + actions.size());
 
         //loop through the probabilites of each action
         for (int i = 0; i < actions.size(); i++) {
@@ -66,12 +66,12 @@ public class EpsilonSoft {
             //accumulate the probability of the current action
             cumulativeProb += probs[i];
             
-             System.out.printf("Index: %d, Probability: %.4f, Cumulative Probability: %.4f%n", i, probs[i], cumulativeProb);
+//             System.out.printf("Index: %d, Probability: %.4f, Cumulative Probability: %.4f%n", i, probs[i], cumulativeProb);
 
 
             //use probabilistic action selection by comparing a random value to the cumulative probability
             if (randomValue <= cumulativeProb) {
-                System.out.println("selecting action " + i + " from the actions list");
+//                System.out.println("selecting action " + i + " from the actions list");
                 return actions.get(i);
             }
         }
