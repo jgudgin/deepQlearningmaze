@@ -74,9 +74,9 @@ public class Agent {
         } else {
 
             System.out.println("Invalid move");
+            
+            double reward = -1;    //-1 point for hitting a wall
 
-            // Calculate the reward based on the move
-            double reward = calculateReward(action);
             System.out.println("Reward for moving " + action.toString() + " = " + reward);
 
             // Create a new experience
@@ -145,7 +145,7 @@ public class Agent {
             if (nextDistance < currentDistance) {
                 return 1.0; // Reward for moving closer
             } else if (nextDistance > currentDistance) {
-                return -2.0; // Penalty for moving away
+                return -1.0; // Penalty for moving away
             }
         }
 
@@ -155,7 +155,7 @@ public class Agent {
         }
 
         // Zero points for normal movement if no conditions met
-        return 0;
+        return -0.1;
     }
 
 }
