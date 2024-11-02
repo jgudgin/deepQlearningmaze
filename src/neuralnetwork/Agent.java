@@ -17,11 +17,11 @@ public class Agent {
     int inputSize = 1024;
     int outputSize = 4;
     int[] hiddenSizes = {10, 5};
-    double learningRate = 0.1;
+    double learningRate = 0.5;
     double discountFactor = 0.9;
     double epsilon = 1.0;
     double minEpsilon = 0.1;
-    double decayRate = 0.995;
+    double decayRate = 0.999;
     double tau = 0.5;
 
     public Agent(State initialState, MazeApp mazeApp) {
@@ -39,36 +39,62 @@ public class Agent {
     }
 
     public void move(List<Action> actions) {
-        //use epsilon soft policy to select an action
+        // Use epsilon soft policy to select an action
         Action action = epsilonSoft.selectAction(qValues, actions);
-        
-        //calculate the reward for the selected action
-        double reward = calculateReward(action);
 
-        
+        // Get the next state based on the action taken
         State nextState = currentState.getNextState(action);
 
-        if (nextState != null) {
-            //create a new experience
-            Experience experience = new Experience(currentState, action, reward, nextState);
+        int[][] maze = mazeApp.getMaze();
 
-            //add experience to the replay buffer
-            experienceReplay.addExperience(experience);
+        // Check if the next state is valid (i.e., not a wall)
+        if (nextState != null && maze[nextState.getX()][nextState.getY()] == 0) { // Ensure the next cell is a path
 
-            //update the total reward
-            totalReward += reward;
-
-            //update the current state and surroundings
+            // Update the current state to the new valid state
             currentState = nextState;
 
-            //train the neural network with a batch of experiences
+            // Calculate the reward based on the move
+            double reward = calculateReward(action);
+            System.out.println("Reward for moving " + action.toString() + " = " + reward);
+
+            // Create a new experience
+            Experience experience = new Experience(currentState, action, reward, nextState);
+            experienceReplay.addExperience(experience);
+
+            // Update the total reward
+            totalReward += reward;
+
+            // Train the neural network with a batch of experiences
             trainWithBatch();
-            
-            //decay epsilon after each action
-            if (this.epsilonSoft.getEpsilon() > minEpsilon){
+
+            // Decay epsilon after each action
+            if (this.epsilonSoft.getEpsilon() > minEpsilon) {
+                this.epsilonSoft.setEpsilon(this.epsilonSoft.getEpsilon() * decayRate);
+            }
+        } else {
+
+            System.out.println("Invalid move");
+
+            // Calculate the reward based on the move
+            double reward = calculateReward(action);
+            System.out.println("Reward for moving " + action.toString() + " = " + reward);
+
+            // Create a new experience
+            Experience experience = new Experience(currentState, action, reward, nextState);
+            experienceReplay.addExperience(experience);
+
+            // Update the total reward
+            totalReward += reward;
+
+            // Train the neural network with a batch of experiences
+            trainWithBatch();
+
+            // Decay epsilon after each action
+            if (this.epsilonSoft.getEpsilon() > minEpsilon) {
                 this.epsilonSoft.setEpsilon(this.epsilonSoft.getEpsilon() * decayRate);
             }
         }
+
     }
 
     private void trainWithBatch() {
@@ -85,33 +111,50 @@ public class Agent {
                 batch.add(experience);
             }
         }
-        System.out.println("training with current batch size: " + batch.size());
+//        System.out.println("training with current batch size: " + batch.size());
 
         //train the q learning network with the sampled batch of experiences
         int i = 1;
         for (Experience experience : batch) {
-            System.out.println("training experience number: " + i + " from the batch");
+//            System.out.println("training experience number: " + i + " from the batch");
             qLearningNetwork.train(experience);
             i++;
         }
     }
 
     public double calculateReward(Action action) {
-
         int[] goalPos = mazeApp.getEndPosition();
-        int blockedDirections = currentState.countBlockedDirections();
+        int currentX = currentState.getX();
+        int currentY = currentState.getY();
 
-        //assign negative reward if agent reaches dead end
-        if (blockedDirections >= 3) {
-            return -5;
+        // Calculate the Manhattan distance to the goal from the current state
+        int currentDistance = Math.abs(currentX - goalPos[0]) + Math.abs(currentY - goalPos[1]);
+
+        // Move to the next state based on the action taken
+        State nextState = currentState.getNextState(action);
+        if (nextState != null) {
+            int nextX = nextState.getX();
+            int nextY = nextState.getY();
+
+            // Calculate the Manhattan distance to the goal from the next state
+            int nextDistance = Math.abs(nextX - goalPos[0]) + Math.abs(nextY - goalPos[1]);
+
+            // Assign reward based on the change in distance
+            // If the next state is closer to the goal, reward positively
+            // If it's further away, penalize negatively
+            if (nextDistance < currentDistance) {
+                return 1.0; // Reward for moving closer
+            } else if (nextDistance > currentDistance) {
+                return -2.0; // Penalty for moving away
+            }
         }
 
-        //assign positive reward if the goal coordinates are reached
-        if (currentState.getX() == goalPos[0] && currentState.getY() == goalPos[1]) {
-            return 10;
+        // Assign positive reward if the goal coordinates are reached
+        if (currentX == goalPos[0] && currentY == goalPos[1]) {
+            return 100; // High reward for reaching the goal
         }
 
-        //zero points for normal movement
+        // Zero points for normal movement if no conditions met
         return 0;
     }
 
