@@ -176,11 +176,11 @@ public class MazeApp {
             }
         }
 
-        System.out.println("\nAvailable moves: " + availableMoves);
+//        System.out.println("\nAvailable moves: " + availableMoves);
         //store the current position before the agent moves
         int oldX = agent.getCurrentState().getX();
         int oldY = agent.getCurrentState().getY();
-        System.out.println("\nAgents current state: " + agent.getCurrentState().toString());
+//        System.out.println("\nAgents current state: " + agent.getCurrentState().toString());
 
         //let agent choose a move based on its current knowledge
         agent.move(availableMoves);

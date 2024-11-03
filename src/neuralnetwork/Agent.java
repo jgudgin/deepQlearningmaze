@@ -13,10 +13,10 @@ public class Agent {
     private MazeApp mazeApp;
     private QLearningNetwork qLearningNetwork;
 
-    private int batchSize = 20;
+    private int batchSize = 1;
     int inputSize = 1024;
     int outputSize = 4;
-    int[] hiddenSizes = {10, 5};
+    int[] hiddenSizes = {20, 5};
     double learningRate = 0.5;
     double discountFactor = 0.9;
     double epsilon = 1.0;
@@ -45,9 +45,9 @@ public class Agent {
         // Use epsilon soft policy to select an action
         Action action = epsilonSoft.selectAction(qValues, actions);
 
-        System.out.println("Agent has chosen to go: " + action.toString());
+//        System.out.println("Agent has chosen to go: " + action.toString());
 
-        System.out.println("Agents next state should be: " + this.getCurrentState().getNextState(action).toString());
+//        System.out.println("Agents next state should be: " + this.getCurrentState().getNextState(action).toString());
 
         // Get the next state based on the action taken
         State nextState = currentState.getNextState(action);
@@ -55,7 +55,10 @@ public class Agent {
         int[][] maze = mazeApp.getMaze();
 
         // Check if the next state is valid (i.e., not a wall)
-        if (nextState != null && maze[nextState.getX()][nextState.getY()] == 0) { // Ensure the next cell is a path
+        if (nextState != null && maze[nextState.getY()][nextState.getX()] == 0) { // Ensure the next cell is a path
+
+            //update the surroundings of the agent 
+            nextState.updateSurroundings(mazeApp.getMaze(), nextState.getX(), nextState.getY());
 
             // Update the current state to the new valid state
             currentState = nextState;
@@ -81,10 +84,10 @@ public class Agent {
             }
         }
 
-        Thread.sleep(2000);
+//        Thread.sleep(30000);
 
 //        System.out.println("Current Epsilon: " + this.epsilonSoft.getEpsilon());
-//        System.out.println("total reward: " + totalReward);
+        System.out.println("total reward: " + totalReward);
     }
 
     private void trainWithBatch() {

@@ -13,18 +13,12 @@ public class State {
     private Map<Action, Surrounding> surroundings; //maps each action to either WALL or PATH
     private MazeApp maze;
 
-    public static final int NORTH = 0;
-    public static final int SOUTH = 1;
-    public static final int EAST = 2;
-    public static final int WEST = 3;
-
     //constructor for the coordinates and the surroundings
     public State(int x, int y, MazeApp maze) {
         this.x = x;
         this.y = y;
         this.maze = maze;
         this.surroundings = new HashMap<>();
-        updateSurroundings(maze.getMaze(), x, y);
     }
 
     public enum Surrounding {
@@ -49,26 +43,34 @@ public class State {
 
         // Check for each direction and update surroundings based on the maze structure
         if (y > 0 && maze[y - 1][x] == 0) { // North
+//            System.out.println("Setting North as PATH: x=" + x + ", y=" + (y - 1));
             surroundings.put(Action.NORTH, Surrounding.PATH);
         } else {
+//            System.out.println("Setting North as WALL: x=" + x + ", y=" + (y - 1));
             surroundings.put(Action.NORTH, Surrounding.WALL);
         }
 
         if (y < maze.length - 1 && maze[y + 1][x] == 0) { // South
+//            System.out.println("Setting South as PATH: x=" + x + ", y=" + (y + 1));
             surroundings.put(Action.SOUTH, Surrounding.PATH);
         } else {
+//            System.out.println("Setting South as WALL: x=" + x + ", y=" + (y + 1));
             surroundings.put(Action.SOUTH, Surrounding.WALL);
         }
 
         if (x < maze[0].length - 1 && maze[y][x + 1] == 0) { // East
+//            System.out.println("Setting East as PATH: x=" + (x + 1) + ", y=" + y);
             surroundings.put(Action.EAST, Surrounding.PATH);
         } else {
+//            System.out.println("Setting East as WALL: x=" + (x + 1) + ", y=" + y);
             surroundings.put(Action.EAST, Surrounding.WALL);
         }
 
         if (x > 0 && maze[y][x - 1] == 0) { // West
+//            System.out.println("Setting West as PATH: x=" + (x - 1) + ", y=" + y);
             surroundings.put(Action.WEST, Surrounding.PATH);
         } else {
+//            System.out.println("Setting West as WALL: x=" + (x - 1) + ", y=" + y);
             surroundings.put(Action.WEST, Surrounding.WALL);
         }
     }
@@ -81,13 +83,12 @@ public class State {
     //get the next state based on the action
     public State getNextState(Action action) {
         if (!isPath(action)) {
+            System.out.println("getNextState for action " + action.toString() + " is null");
             return null;
         }
 
         int newX = x + action.getDeltaX();
         int newY = y + action.getDeltaY();
-
-        updateSurroundings(maze.getMaze(), newX, newY);
 
         return new State(newX, newY, maze);
     }
