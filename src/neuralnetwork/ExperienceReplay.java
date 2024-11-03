@@ -22,6 +22,7 @@ public class ExperienceReplay {
         //check for duplicates
         for (Experience existingExperience : replayBuffer) {
             if (existingExperience.equals(experience)) {
+                System.out.println("experience already exists, skip adding to buffer");
                 return; //experience already exists, skip adding
             }
         }

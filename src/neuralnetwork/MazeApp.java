@@ -6,6 +6,8 @@ import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 // Class for generating a maze
 public class MazeApp {
@@ -60,7 +62,7 @@ public class MazeApp {
         }
 
         State initialState = new State(startPosition[0], startPosition[1], this);
-        agent = new Agent(initialState,this);
+        agent = new Agent(initialState, this);
 
         //add the grid panel to the frame
         frame.add(gridPanel);
@@ -68,7 +70,13 @@ public class MazeApp {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        gameTimer = new Timer(100, e -> startGameLoop());
+        gameTimer = new Timer(100, e -> {
+            try {
+                startGameLoop();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MazeApp.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
         gameTimer.start();
     }
 
@@ -143,7 +151,7 @@ public class MazeApp {
         return maze;
     }
 
-    public void startGameLoop() {
+    public void startGameLoop() throws InterruptedException {
         agent.getCurrentState().updateSurroundings(maze, agent.getCurrentState().getX(), agent.getCurrentState().getY());
 //        System.out.println(agent.getCurrentState().toString());
 
@@ -155,9 +163,8 @@ public class MazeApp {
             JOptionPane.showMessageDialog(gridPanel, "Agent has reached the end!");
             return;
         }
-        
-//        System.out.println("Current Surroundings: " + agent.getCurrentState().getSurroundings());
 
+//        System.out.println("Current Surroundings: " + agent.getCurrentState().getSurroundings());
         availableMoves.clear();
         //find all available moves based on surroundings
         for (Map.Entry<Action, State.Surrounding> entry : agent.getCurrentState().getSurroundings().entrySet()) {
@@ -169,10 +176,11 @@ public class MazeApp {
             }
         }
 
-//        System.out.println("\nAvailable moves: " + availableMoves);
+        System.out.println("\nAvailable moves: " + availableMoves);
         //store the current position before the agent moves
         int oldX = agent.getCurrentState().getX();
         int oldY = agent.getCurrentState().getY();
+        System.out.println("\nAgents current state: " + agent.getCurrentState().toString());
 
         //let agent choose a move based on its current knowledge
         agent.move(availableMoves);
@@ -180,19 +188,23 @@ public class MazeApp {
         //get the new position after the move
         int newX = agent.getCurrentState().getX();
         int newY = agent.getCurrentState().getY();
+//        System.out.println("Agent true state after moving: " + agent.getCurrentState().toString());
 
         //update the visual representation
         updateAgentPosition(oldX, oldY, newX, newY);
+        
     }
 
     private void updateAgentPosition(int oldX, int oldY, int newX, int newY) {
         //reset the old position back to path color (white)
-        JPanel oldCell = (JPanel) gridPanel.getComponent(oldX * GRID_SIZE + oldY);
+        JPanel oldCell = (JPanel) gridPanel.getComponent(oldY * GRID_SIZE + oldX);
         oldCell.setBackground(Color.WHITE); //reset to path color
 
         //set the new position color to indicate the agent's current position
-        JPanel newCell = (JPanel) gridPanel.getComponent(newX * GRID_SIZE + newY);
+        JPanel newCell = (JPanel) gridPanel.getComponent(newY * GRID_SIZE + newX);
         newCell.setBackground(Color.BLUE); //change color to indicate agent's position
+        
+//        System.out.println("Agents visual position:\nx = " + newX + "\ny = " + newY);
 
         //repaint the grid to reflect changes
         gridPanel.repaint();

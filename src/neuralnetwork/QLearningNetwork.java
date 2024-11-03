@@ -88,9 +88,9 @@ public class QLearningNetwork {
         //update Q-value for current action in current state
         //update Qt(s,a) with: alpha * (targetQValue - Qt-1(s,a))
         int actionIndex = experience.getAction().index();
-//        System.out.println("Updating Q-value for action index " + (actionIndex + 1) + " from " + qValuesCurrent[actionIndex]);
+//        System.out.print("Updating Q-value for action index " + experience.getAction().toString() + " from " + qValuesCurrent[actionIndex]);
         qValuesCurrent[actionIndex] += (alpha * (targetQValue - qValuesCurrent[actionIndex]));
-//        System.out.println("Updated Q-value for action index " + (actionIndex + 1) + ": " + qValuesCurrent[actionIndex]);
+//        System.out.println(" to: " + qValuesCurrent[actionIndex]);
 
         //backpropagate the updated Q-values through the neural network, using the predicted ones to calculate error
         backpropagate(experience, qValuesCurrent, initialQValues);

@@ -87,6 +87,8 @@ public class State {
         int newX = x + action.getDeltaX();
         int newY = y + action.getDeltaY();
 
+        updateSurroundings(maze.getMaze(), newX, newY);
+
         return new State(newX, newY, maze);
     }
 
@@ -136,6 +138,6 @@ public class State {
 
     @Override
     public String toString() {
-        return "current state:\nx = " + this.getX() + "\ny = " + this.getY();
+        return "\nx = " + this.getX() + "\ny = " + this.getY();
     }
 }

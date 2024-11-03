@@ -13,7 +13,7 @@ public class Agent {
     private MazeApp mazeApp;
     private QLearningNetwork qLearningNetwork;
 
-    private int batchSize = 50;
+    private int batchSize = 20;
     int inputSize = 1024;
     int outputSize = 4;
     int[] hiddenSizes = {10, 5};
@@ -22,7 +22,7 @@ public class Agent {
     double epsilon = 1.0;
     double minEpsilon = 0.1;
     double decayRate = 0.999;
-    double tau = 0.3;
+    double tau = 0.5;
 
     public Agent(State initialState, MazeApp mazeApp) {
         this.currentState = initialState;
@@ -30,7 +30,6 @@ public class Agent {
         this.epsilonSoft = new EpsilonSoft(epsilon, tau);
         this.qLearningNetwork = new QLearningNetwork(inputSize, outputSize, hiddenSizes, learningRate, discountFactor);
         this.totalReward = 0.0;
-        this.qValues = new double[4];
         this.mazeApp = mazeApp;
     }
 
@@ -38,9 +37,17 @@ public class Agent {
         return currentState;
     }
 
-    public void move(List<Action> actions) {
+    public void move(List<Action> actions) throws InterruptedException {
+
+        //create a new array to store q values for available actions
+        qValues = new double[actions.size()];
+
         // Use epsilon soft policy to select an action
         Action action = epsilonSoft.selectAction(qValues, actions);
+
+        System.out.println("Agent has chosen to go: " + action.toString());
+
+        System.out.println("Agents next state should be: " + this.getCurrentState().getNextState(action).toString());
 
         // Get the next state based on the action taken
         State nextState = currentState.getNextState(action);
@@ -52,6 +59,7 @@ public class Agent {
 
             // Update the current state to the new valid state
             currentState = nextState;
+//            System.out.println("Agent true state after moving: " + this.getCurrentState().toString());
 
             // Calculate the reward based on the move
             double reward = calculateReward(action);
@@ -71,30 +79,12 @@ public class Agent {
             if (this.epsilonSoft.getEpsilon() > minEpsilon) {
                 this.epsilonSoft.setEpsilon(this.epsilonSoft.getEpsilon() * decayRate);
             }
-        } else {
-
-//            System.out.println("Invalid move");
-            double reward = -1;    //-1 point for hitting a wall
-
-//            System.out.println("Reward for moving " + action.toString() + " = " + reward);
-            // Create a new experience
-            Experience experience = new Experience(currentState, action, reward, nextState);
-            experienceReplay.addExperience(experience);
-
-            // Update the total reward
-            totalReward += reward;
-
-            // Train the neural network with a batch of experiences
-            trainWithBatch();
-
-            // Decay epsilon after each action
-            if (this.epsilonSoft.getEpsilon() > minEpsilon) {
-                this.epsilonSoft.setEpsilon(this.epsilonSoft.getEpsilon() * decayRate);
-            }
-
         }
+
+        Thread.sleep(2000);
+
 //        System.out.println("Current Epsilon: " + this.epsilonSoft.getEpsilon());
-        System.out.println("total reward: " + totalReward);
+//        System.out.println("total reward: " + totalReward);
     }
 
     private void trainWithBatch() {
