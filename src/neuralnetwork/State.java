@@ -77,18 +77,18 @@ public class State {
 
     //check if certain direction is path
     public boolean isPath(Action action) {
-        System.out.println("Checking if " + action.toString() + " is a wall");
+//        System.out.println("Checking if " + action.toString() + " is a wall");
         return surroundings.get(action) == Surrounding.PATH;
     }
 
     //get the next state based on the action
     public State getNextState(Action action) {
         if (!isPath(action)) {
-            System.out.println("moving " + action.toString() + " in state " + this.toString() + "\nleads to a wall");
+//            System.out.println("moving " + action.toString() + " in state " + this.toString() + "\nleads to a wall");
             return null;
         }
 
-        System.out.println("returning the next state after going " + action.toString());
+//        System.out.println("returning the next state after going " + action.toString());
         int newX = x + action.getDeltaX();
         int newY = y + action.getDeltaY();
 
@@ -143,5 +143,10 @@ public class State {
     @Override
     public String toString() {
         return "\nx = " + this.getX() + "\ny = " + this.getY();
+    }
+    
+    public void setCurrentState(int x, int y){
+        this.x = x;
+        this.y = y;
     }
 }

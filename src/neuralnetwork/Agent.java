@@ -15,7 +15,7 @@ public class Agent {
     private QLearningNetwork qLearningNetwork;
     private Scanner input;
 
-    private int batchSize = 100;
+    private int batchSize = 1000;
     int inputSize = 1024;
     int outputSize = 4;
     int[] hiddenSizes = {20, 5};
@@ -23,8 +23,14 @@ public class Agent {
     double discountFactor = 0.9;
     double epsilon = 1.0;
     double minEpsilon = 0.1;
-    double decayRate = 0.999;
+    double decayRate = 0.995;
     double tau = 0.5;
+
+    //amount of valid moves before epsilon is adjusted
+    int movesBeforeDecay = 5;
+    
+    //initial state of move counter
+    int moveCounter = 0;
 
     public Agent(State initialState, MazeApp mazeApp) {
         this.currentState = initialState;
@@ -41,28 +47,25 @@ public class Agent {
 
     public void move(List<Action> actions) throws InterruptedException {
 
-        input = new Scanner(System.in);
+//        input = new Scanner(System.in);
         //create a new array to store q values for available actions
         qValues = new double[actions.size()];
 
         // Use epsilon soft policy to select an action
         Action action = epsilonSoft.selectAction(qValues, actions);
 
-        System.out.println("Agent has chosen to go: " + action.toString());
-
-        System.out.println("Agents next state should be: " + this.getCurrentState().getNextState(action).toString());
-
+//        System.out.println("Agent has chosen to go: " + action.toString());
+//        System.out.println("Agents next state should be: " + this.getCurrentState().getNextState(action).toString());
         int[][] maze = mazeApp.getMaze();
-        
+
         //flag for checking if a certain move is valid
         boolean isNextActionValid = currentState.isPath(action);
 
         // Check if the next state is valid (i.e., not a wall)
         if (isNextActionValid) { // Ensure the next cell is a path
-            System.out.println("currentState.isPath(" + action.toString() + ") = " + isNextActionValid);
+//            System.out.println("currentState.isPath(" + action.toString() + ") = " + isNextActionValid);
 
-            System.out.println("move is valid, making...");
-
+//            System.out.println("move is valid, making...");
             // Update the current state to the new valid state
             currentState = getCurrentState().getNextState(action);
 
@@ -87,25 +90,28 @@ public class Agent {
             // Train the neural network with a batch of experiences
             trainWithBatch();
 
-            // Decay epsilon after each action
-            if (this.epsilonSoft.getEpsilon() > minEpsilon) {
-                this.epsilonSoft.setEpsilon(this.epsilonSoft.getEpsilon() * decayRate);
+            // Increment move counter and check if it's time to decay epsilon
+            moveCounter++;
+            if (moveCounter >= movesBeforeDecay) {
+                if (this.epsilonSoft.getEpsilon() > minEpsilon) {
+                    this.epsilonSoft.setEpsilon(this.epsilonSoft.getEpsilon() * decayRate);
+                }
+                moveCounter = 0; // Reset the counter
             }
         } else {
-            System.out.println("invalid move, " + action.toString() + " is blocked");
+            System.out.println("Invalid move, " + action.toString() + " is blocked");
         }
 
-        input.nextLine();
+//        input.nextLine();
 //        Thread.sleep(10000);
-
 //        System.out.println("Current Epsilon: " + this.epsilonSoft.getEpsilon());
-        System.out.println("total reward: " + totalReward);
+//        System.out.println("total reward: " + totalReward);
     }
 
     private void trainWithBatch() {
         //check if there are enough experiences in the replay buffer
         if (experienceReplay.getBufferSize() < batchSize) {
-            System.out.println("Not enough experiences to train from");
+//            System.out.println("Not enough experiences to train from");
             return; //not enough experiences to train
         }
 
@@ -132,15 +138,29 @@ public class Agent {
         int currentX = currentState.getX();
         int currentY = currentState.getY();
 
-        // Calculate current Manhattan distance
+        // Calculate current Manhattan distance to the goal
         int currentDistance = Math.abs(currentX - goalPos[0]) + Math.abs(currentY - goalPos[1]);
 
         // High reward for reaching the goal
         if (currentX == goalPos[0] && currentY == goalPos[1]) {
-            return 50; // Moderate reward
+            return 50; // High reward for reaching the goal
         }
 
+        //if the agent is at a dead end then deduct points
+        if (currentState.countBlockedDirections() == 3) {
+            return -1;
+        }
+
+        // Intermediate reward based on distance
+        double distanceReward = 1.0 / (currentDistance + 1); // Reward increases as distance decreases
+
         // Small penalty for each action taken
-        return -0.01; // Small penalty for normal movement
+        double stepPenalty = -0.01;
+
+        return distanceReward + stepPenalty;
+    }
+
+    public void setTotalReward(int totalReward){
+        this.totalReward = totalReward;
     }
 }
