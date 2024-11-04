@@ -41,20 +41,14 @@ public abstract class Layer {
 
     //method for updating the weights and biases of each neuron
     public void updateWeights(double[][] weightGradients, double[] biasGradients, double learningRate) {
-//        System.out.println("Update weights method");
         //update weights based on the calculated weight gradients
         //using formula Wnew = Wold - alpha * (∂L / ∂W)
         //where W = weight, alpha = learning rate, L = loss
         //weight gradient (dL / dW) is already calculated before this method is called
         for (int i = 0; i < weights[i].length; i++) {
-//            System.out.println("i = " + i);
             for (int j = 0; j < weights[i].length; j++) {
-//                System.out.println("j = " + j);
                 weights[i][j] -= learningRate * weightGradients[i][j];
             }
-
-//            System.out.println("weights length = " + weights.length);
-//            System.out.println("weights[i] length = " + weights[i].length);
         }
 
         //update biases using the calculated weight gradients

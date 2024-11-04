@@ -41,58 +41,46 @@ public class State {
     public void updateSurroundings(int[][] maze, int x, int y) {
         surroundings.clear(); // Clear previous surroundings
 
-        // Check for each direction and update surroundings based on the maze structure
-        if (y > 0 && maze[y - 1][x] == 0) { // North
-//            System.out.println("Setting North as PATH: x=" + x + ", y=" + (y - 1));
+        //check for each direction and update surroundings based on the maze structure
+        if (y > 0 && maze[y - 1][x] == 0) { //north
             surroundings.put(Action.NORTH, Surrounding.PATH);
         } else {
-//            System.out.println("Setting North as WALL: x=" + x + ", y=" + (y - 1));
             surroundings.put(Action.NORTH, Surrounding.WALL);
         }
 
-        if (y < maze.length - 1 && maze[y + 1][x] == 0) { // South
-//            System.out.println("Setting South as PATH: x=" + x + ", y=" + (y + 1));
+        if (y < maze.length - 1 && maze[y + 1][x] == 0) { //south
             surroundings.put(Action.SOUTH, Surrounding.PATH);
         } else {
-//            System.out.println("Setting South as WALL: x=" + x + ", y=" + (y + 1));
             surroundings.put(Action.SOUTH, Surrounding.WALL);
         }
 
-        if (x < maze[0].length - 1 && maze[y][x + 1] == 0) { // East
-//            System.out.println("Setting East as PATH: x=" + (x + 1) + ", y=" + y);
+        if (x < maze[0].length - 1 && maze[y][x + 1] == 0) { //east
             surroundings.put(Action.EAST, Surrounding.PATH);
         } else {
-//            System.out.println("Setting East as WALL: x=" + (x + 1) + ", y=" + y);
             surroundings.put(Action.EAST, Surrounding.WALL);
         }
 
-        if (x > 0 && maze[y][x - 1] == 0) { // West
-//            System.out.println("Setting West as PATH: x=" + (x - 1) + ", y=" + y);
+        if (x > 0 && maze[y][x - 1] == 0) { //west
             surroundings.put(Action.WEST, Surrounding.PATH);
         } else {
-//            System.out.println("Setting West as WALL: x=" + (x - 1) + ", y=" + y);
             surroundings.put(Action.WEST, Surrounding.WALL);
         }
     }
 
     //check if certain direction is path
     public boolean isPath(Action action) {
-//        System.out.println("Checking if " + action.toString() + " is a wall");
         return surroundings.get(action) == Surrounding.PATH;
     }
 
     //get the next state based on the action
     public State getNextState(Action action) {
         if (!isPath(action)) {
-//            System.out.println("moving " + action.toString() + " in state " + this.toString() + "\nleads to a wall");
             return null;
         }
 
-//        System.out.println("returning the next state after going " + action.toString());
         int newX = x + action.getDeltaX();
         int newY = y + action.getDeltaY();
 
-//        updateSurroundings(maze.getMaze(), newX, newY);
         return new State(newX, newY, maze);
     }
 
