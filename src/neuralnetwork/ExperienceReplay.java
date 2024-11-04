@@ -8,11 +8,11 @@ import java.util.Random;
 public class ExperienceReplay {
 
     private final List<Experience> replayBuffer;
-    private final int bufferSize;
+    private final int bufferLimit;
     private final Random random;
 
-    public ExperienceReplay(int bufferSize) {
-        this.bufferSize = bufferSize;
+    public ExperienceReplay(int bufferLimit) {
+        this.bufferLimit = bufferLimit;
         this.replayBuffer = new ArrayList<>();
         this.random = new Random();
     }
@@ -27,11 +27,11 @@ public class ExperienceReplay {
             }
         }
 
-        if (replayBuffer.size() < bufferSize) {
+        if (replayBuffer.size() < bufferLimit) {
             replayBuffer.add(experience);
         } else {
             //replace the oldest experience with a new one (circular buffer)
-            replayBuffer.set(random.nextInt(bufferSize), experience);
+            replayBuffer.set(random.nextInt(bufferLimit), experience);
         }
     }
 
@@ -46,6 +46,6 @@ public class ExperienceReplay {
     }
 
     public int getBufferSize() {
-        return bufferSize;
+        return replayBuffer.size();
     }
 }

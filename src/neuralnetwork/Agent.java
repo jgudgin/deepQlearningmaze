@@ -15,26 +15,28 @@ public class Agent {
     private QLearningNetwork qLearningNetwork;
     private Scanner input;
 
-    private int batchSize = 1000;
-    int inputSize = 100;
-    int outputSize = 4;
-    int[] hiddenSizes = {10, 5};
-    double learningRate = 0.1;
-    double discountFactor = 0.9;
-    double epsilon = 1.0;
-    double minEpsilon = 0.1;
-    double decayRate = 0.999;
-    double tau = 0.5;
+    private int batchSize = 32; //amount of experiences to accumulate before beginning training
+    private int bufferLimit = 1000;  //max amount of experiences kept in the replay buffer to be sampled
+    
+    int inputSize = 100;    //amount of neurons in input layer
+    int outputSize = 4;     //amount of neurons in output layer
+    int[] hiddenSizes = {10, 5};    //amount of neurons in each hidden layer
+    double learningRate = 0.1;  //weight that new information has on known information
+    double discountFactor = 0.9;    //reduces reward after each time step
+    double epsilon = 1.0;   //exporation rate
+    double minEpsilon = 0.1;    //minimum exploration rate
+    double decayRate = 0.999;   //decay rate of epsilon after certain amount of moves
+    double tau = 0.5;   //temperature parameter for softmax
 
     //amount of valid moves before epsilon is adjusted
-    int movesBeforeDecay = 1000;
+    int movesBeforeDecay = 20;
     
     //initial state of move counter
     int moveCounter = 0;
 
     public Agent(State initialState, MazeApp mazeApp) {
         this.currentState = initialState;
-        this.experienceReplay = new ExperienceReplay(batchSize);
+        this.experienceReplay = new ExperienceReplay(bufferLimit);
         this.epsilonSoft = new EpsilonSoft(epsilon, tau);
         this.qLearningNetwork = new QLearningNetwork(inputSize, outputSize, hiddenSizes, learningRate, discountFactor);
         this.totalReward = 0.0;
@@ -110,6 +112,7 @@ public class Agent {
 
     private void trainWithBatch() {
         //check if there are enough experiences in the replay buffer
+//        System.out.println(experienceReplay.getBufferSize());
         if (experienceReplay.getBufferSize() < batchSize) {
 //            System.out.println("Not enough experiences to train from");
             return; //not enough experiences to train
@@ -124,7 +127,7 @@ public class Agent {
         }
 //        System.out.println("training with current batch size: " + batch.size());
 
-          System.out.println("batch contents: " + batch.toString());
+//          System.out.println("batch contents: " + batch.toString());
         //train the q learning network with the sampled batch of experiences
         int i = 1;
         for (Experience experience : batch) {
