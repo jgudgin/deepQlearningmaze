@@ -164,7 +164,7 @@ public class MazeApp {
             return;
         }
 
-//        System.out.println("Current Surroundings: " + agent.getCurrentState().getSurroundings());
+        System.out.println("\n\nCurrent Surroundings: " + agent.getCurrentState().getSurroundings());
         availableMoves.clear();
         //find all available moves based on surroundings
         for (Map.Entry<Action, State.Surrounding> entry : agent.getCurrentState().getSurroundings().entrySet()) {
@@ -176,11 +176,11 @@ public class MazeApp {
             }
         }
 
-//        System.out.println("\nAvailable moves: " + availableMoves);
+        System.out.println("Available moves: " + availableMoves);
         //store the current position before the agent moves
         int oldX = agent.getCurrentState().getX();
         int oldY = agent.getCurrentState().getY();
-//        System.out.println("\nAgents current state: " + agent.getCurrentState().toString());
+        System.out.println("Agents current state: " + agent.getCurrentState().toString());
 
         //let agent choose a move based on its current knowledge
         agent.move(availableMoves);

@@ -83,13 +83,14 @@ public class State {
     //get the next state based on the action
     public State getNextState(Action action) {
         if (!isPath(action)) {
-            System.out.println("getNextState for action " + action.toString() + " is null");
+            System.out.println("moving " + action.toString() + " in state " + this.toString() + "\nleads to a wall");
             return null;
         }
 
         int newX = x + action.getDeltaX();
         int newY = y + action.getDeltaY();
 
+        updateSurroundings(maze.getMaze(), newX, newY);
         return new State(newX, newY, maze);
     }
 

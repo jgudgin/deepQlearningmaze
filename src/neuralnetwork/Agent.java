@@ -2,6 +2,7 @@ package neuralnetwork;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Agent {
 
@@ -12,8 +13,9 @@ public class Agent {
     private double[] qValues;
     private MazeApp mazeApp;
     private QLearningNetwork qLearningNetwork;
+    private Scanner input;
 
-    private int batchSize = 1;
+    private int batchSize = 100;
     int inputSize = 1024;
     int outputSize = 4;
     int[] hiddenSizes = {20, 5};
@@ -39,15 +41,16 @@ public class Agent {
 
     public void move(List<Action> actions) throws InterruptedException {
 
+        input = new Scanner(System.in);
         //create a new array to store q values for available actions
         qValues = new double[actions.size()];
 
         // Use epsilon soft policy to select an action
         Action action = epsilonSoft.selectAction(qValues, actions);
 
-//        System.out.println("Agent has chosen to go: " + action.toString());
+        System.out.println("Agent has chosen to go: " + action.toString());
 
-//        System.out.println("Agents next state should be: " + this.getCurrentState().getNextState(action).toString());
+        System.out.println("Agents next state should be: " + this.getCurrentState().getNextState(action).toString());
 
         // Get the next state based on the action taken
         State nextState = currentState.getNextState(action);
@@ -55,13 +58,16 @@ public class Agent {
         int[][] maze = mazeApp.getMaze();
 
         // Check if the next state is valid (i.e., not a wall)
-        if (nextState != null && maze[nextState.getY()][nextState.getX()] == 0) { // Ensure the next cell is a path
+        if (currentState.isPath(action)) { // Ensure the next cell is a path
 
-            //update the surroundings of the agent 
-            nextState.updateSurroundings(mazeApp.getMaze(), nextState.getX(), nextState.getY());
+            System.out.println("move is valid, making...");
 
             // Update the current state to the new valid state
             currentState = nextState;
+
+            //update the surroundings of the agent after updating the state
+//            nextState.updateSurroundings(mazeApp.getMaze(), getCurrentState().getX(), getCurrentState().getY());
+//            System.out.println("Agents should be surroundings after moving: " + nextState.getSurroundings().toString());
 //            System.out.println("Agent true state after moving: " + this.getCurrentState().toString());
 
             // Calculate the reward based on the move
@@ -82,9 +88,12 @@ public class Agent {
             if (this.epsilonSoft.getEpsilon() > minEpsilon) {
                 this.epsilonSoft.setEpsilon(this.epsilonSoft.getEpsilon() * decayRate);
             }
+        } else {
+            System.out.println("currentState.isPath(" + action.toString() + ") = " + nextState.isPath(action));
         }
 
-//        Thread.sleep(30000);
+        input.nextLine();
+//        Thread.sleep(10000);
 
 //        System.out.println("Current Epsilon: " + this.epsilonSoft.getEpsilon());
         System.out.println("total reward: " + totalReward);
