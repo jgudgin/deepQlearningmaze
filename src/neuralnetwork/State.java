@@ -77,6 +77,7 @@ public class State {
 
     //check if certain direction is path
     public boolean isPath(Action action) {
+        System.out.println("Checking if " + action.toString() + " is a wall");
         return surroundings.get(action) == Surrounding.PATH;
     }
 
@@ -87,10 +88,11 @@ public class State {
             return null;
         }
 
+        System.out.println("returning the next state after going " + action.toString());
         int newX = x + action.getDeltaX();
         int newY = y + action.getDeltaY();
 
-        updateSurroundings(maze.getMaze(), newX, newY);
+//        updateSurroundings(maze.getMaze(), newX, newY);
         return new State(newX, newY, maze);
     }
 

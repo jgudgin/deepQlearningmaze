@@ -52,30 +52,33 @@ public class Agent {
 
         System.out.println("Agents next state should be: " + this.getCurrentState().getNextState(action).toString());
 
-        // Get the next state based on the action taken
-        State nextState = currentState.getNextState(action);
-
         int[][] maze = mazeApp.getMaze();
+        
+        //flag for checking if a certain move is valid
+        boolean isNextActionValid = currentState.isPath(action);
 
         // Check if the next state is valid (i.e., not a wall)
-        if (currentState.isPath(action)) { // Ensure the next cell is a path
+        if (isNextActionValid) { // Ensure the next cell is a path
+            System.out.println("currentState.isPath(" + action.toString() + ") = " + isNextActionValid);
 
             System.out.println("move is valid, making...");
 
             // Update the current state to the new valid state
-            currentState = nextState;
+            currentState = getCurrentState().getNextState(action);
+
+            //also update the surroundings for the updated current state
+            currentState.updateSurroundings(mazeApp.getMaze(), currentState.getX(), currentState.getY());
 
             //update the surroundings of the agent after updating the state
 //            nextState.updateSurroundings(mazeApp.getMaze(), getCurrentState().getX(), getCurrentState().getY());
 //            System.out.println("Agents should be surroundings after moving: " + nextState.getSurroundings().toString());
 //            System.out.println("Agent true state after moving: " + this.getCurrentState().toString());
-
             // Calculate the reward based on the move
             double reward = calculateReward(action);
 //            System.out.println("Reward for moving " + action.toString() + " = " + reward);
 
             // Create a new experience
-            Experience experience = new Experience(currentState, action, reward, nextState);
+            Experience experience = new Experience(currentState, action, reward, currentState);
             experienceReplay.addExperience(experience);
 
             // Update the total reward
@@ -89,7 +92,7 @@ public class Agent {
                 this.epsilonSoft.setEpsilon(this.epsilonSoft.getEpsilon() * decayRate);
             }
         } else {
-            System.out.println("currentState.isPath(" + action.toString() + ") = " + nextState.isPath(action));
+            System.out.println("invalid move, " + action.toString() + " is blocked");
         }
 
         input.nextLine();
@@ -131,18 +134,6 @@ public class Agent {
 
         // Calculate current Manhattan distance
         int currentDistance = Math.abs(currentX - goalPos[0]) + Math.abs(currentY - goalPos[1]);
-
-        // Get next state based on action
-        State nextState = currentState.getNextState(action);
-        if (nextState != null) {
-            int nextX = nextState.getX();
-            int nextY = nextState.getY();
-            int nextDistance = Math.abs(nextX - goalPos[0]) + Math.abs(nextY - goalPos[1]);
-
-            // Reward for moving closer and penalty for moving away
-            double reward = (currentDistance - nextDistance) * 5; // Scale as needed
-            return reward; // Return calculated reward
-        }
 
         // High reward for reaching the goal
         if (currentX == goalPos[0] && currentY == goalPos[1]) {
