@@ -19,9 +19,12 @@ public class MazeApp {
     private Agent agent;
     private List<Action> availableMoves = new ArrayList<>();
     private Timer gameTimer;
+    long start = System.nanoTime();
 
-    private int episodeAmount = 10; //amount of episodes to play through
+    private int episodeAmount = 100; //amount of episodes to play through
     private int episodeNum = 0;
+
+    private int moveCounter;
 
     private final int[] startPosition = {1, 1};
     private final int[] endPosition = {GRID_SIZE - 3, GRID_SIZE - 3};
@@ -155,6 +158,7 @@ public class MazeApp {
     }
 
     public void startGameLoop() throws InterruptedException {
+
         agent.getCurrentState().updateSurroundings(maze, agent.getCurrentState().getX(), agent.getCurrentState().getY());
 //        System.out.println(agent.getCurrentState().toString());
 
@@ -167,13 +171,18 @@ public class MazeApp {
                 JOptionPane.showMessageDialog(gridPanel, "Agent has finished training");
                 return;
             }
+            long end = System.nanoTime();
 
-            
-            System.out.println("episode " + episodeNum + " complete");
+            double elapsedTime = (end - start) / 1_000_000_000.0;
+            System.out.printf("Episode %d complete after %.3f seconds with %d moves%n", episodeNum, elapsedTime, moveCounter);
+
             episodeNum++;
+            moveCounter = 0;
+            start = System.nanoTime();
             agent.getCurrentState().setCurrentState(startPosition[0], startPosition[1]);
             agent.getCurrentState().updateSurroundings(maze, startPosition[0], startPosition[1]);
             agent.setTotalReward(0);    //reset total reward
+
         }
 
 //        System.out.println("\n\nCurrent Surroundings: " + agent.getCurrentState().getSurroundings());
@@ -196,6 +205,8 @@ public class MazeApp {
 
         //let agent choose a move based on its current knowledge
         agent.move(availableMoves);
+        
+        moveCounter++;
 
         //get the new position after the move
         int newX = agent.getCurrentState().getX();

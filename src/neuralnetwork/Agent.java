@@ -16,18 +16,18 @@ public class Agent {
     private Scanner input;
 
     private int batchSize = 1000;
-    int inputSize = 1024;
+    int inputSize = 100;
     int outputSize = 4;
-    int[] hiddenSizes = {20, 5};
-    double learningRate = 0.5;
+    int[] hiddenSizes = {10, 5};
+    double learningRate = 0.1;
     double discountFactor = 0.9;
     double epsilon = 1.0;
     double minEpsilon = 0.1;
-    double decayRate = 0.995;
+    double decayRate = 0.999;
     double tau = 0.5;
 
     //amount of valid moves before epsilon is adjusted
-    int movesBeforeDecay = 5;
+    int movesBeforeDecay = 1000;
     
     //initial state of move counter
     int moveCounter = 0;
@@ -118,12 +118,13 @@ public class Agent {
         List<Experience> batch = new ArrayList<>();
         for (int i = 0; i < batchSize; i++) {
             Experience experience = experienceReplay.sampleExperience();
-            if (experience != null) {
+            if (experience != null && !batch.contains(experience)) {
                 batch.add(experience);
             }
         }
 //        System.out.println("training with current batch size: " + batch.size());
 
+          System.out.println("batch contents: " + batch.toString());
         //train the q learning network with the sampled batch of experiences
         int i = 1;
         for (Experience experience : batch) {
@@ -143,19 +144,19 @@ public class Agent {
 
         // High reward for reaching the goal
         if (currentX == goalPos[0] && currentY == goalPos[1]) {
-            return 50; // High reward for reaching the goal
+            return 5000; // High reward for reaching the goal
         }
 
         //if the agent is at a dead end then deduct points
         if (currentState.countBlockedDirections() == 3) {
-            return -1;
+            return 1.0 / (currentDistance + 1) * 2;
         }
 
         // Intermediate reward based on distance
         double distanceReward = 1.0 / (currentDistance + 1); // Reward increases as distance decreases
 
         // Small penalty for each action taken
-        double stepPenalty = -0.01;
+        double stepPenalty = -10;
 
         return distanceReward + stepPenalty;
     }
